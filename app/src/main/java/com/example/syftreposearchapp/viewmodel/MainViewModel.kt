@@ -3,8 +3,6 @@ package com.example.syftreposearchapp.viewmodel
 import android.app.Activity
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.syftreposearchapp.data.model.GitRepoModel
-import com.example.syftreposearchapp.data.model.GitRepos
 import com.example.syftreposearchapp.data.model.Items
 import com.example.syftreposearchapp.data.repository.Repository
 import com.example.syftreposearchapp.ui.activity.MainActivity
@@ -15,20 +13,24 @@ import java.util.*
 class MainViewModel constructor(private val repository: Repository) : ViewModel() {
     private val disposable = CompositeDisposable()
 
-    fun fetchrepos() {
+    fun fetchRepos(query: String = "org:github", language: String = "") {
         loadingState.value = LoadingState.LOADING
         disposable.add(
-            repository.fetchGitRepos()
-
+            repository.fetchGitRepos(
+                query + if (language != "") {
+                    " language:$language"
+                } else {
+                    ""
+                }
+            )
                 .subscribe({
                     lastFetchedTime = Date()
                     if (it == null) {
                         errorMessage.value = "No Post Found"
                         loadingState.value = LoadingState.ERROR
                     } else {
-                        it.let { val list:MutableList<Items> = it.items as MutableList<Items>
-                            repos.value = list}
-
+                        repos.value = it.items
+                        totalCount.value = it.total_count
                         loadingState.value = LoadingState.SUCCESS
                     }
                 }, {
@@ -47,7 +49,8 @@ class MainViewModel constructor(private val repository: Repository) : ViewModel(
 
     var lastFetchedTime: Date? = null
 
-    val repos: MutableLiveData<MutableList<Items>> = MutableLiveData()
+    val repos: MutableLiveData<List<Items>> = MutableLiveData()
+    val totalCount: MutableLiveData<Int> = MutableLiveData()
 
     val errorMessage: MutableLiveData<String> = MutableLiveData()
 
@@ -65,7 +68,7 @@ class MainViewModel constructor(private val repository: Repository) : ViewModel(
         super.onCleared()
     }
 
-    fun getActivity(): Class<out Activity>{
+    fun getActivity(): Class<out Activity> {
         return MainActivity::class.java
     }
 }

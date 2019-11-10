@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">Syft Repo Search App</string>
+    <string name="retry">Retry</string>
+    <string name="total_repo_count">Total %1$d repositories in %2$s</string>
+    <string name="languages">Languages</string>
+    <string name="apply">Apply</string>
+    <string name="filter">Filter</string>
 </resources>

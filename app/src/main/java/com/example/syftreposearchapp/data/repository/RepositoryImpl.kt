@@ -9,8 +9,8 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 
 open class RepositoryImpl(private val webServices: WebServices) : Repository {
-    override fun fetchGitRepos(): Single<GitRepoModel> {
-        return webServices.fetchRepoWebService(Constant.q, Constant.sort, Constant.order)
+    override fun fetchGitRepos(query: String): Single<GitRepoModel> {
+        return webServices.fetchRepoWebService(query, Constant.sort, Constant.order)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
     }

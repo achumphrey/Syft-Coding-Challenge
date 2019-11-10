@@ -5,5 +5,5 @@ import com.example.syftreposearchapp.data.model.GitRepos
 import io.reactivex.Single
 
 interface Repository {
-    fun fetchGitRepos(): Single<GitRepoModel>
+    fun fetchGitRepos(query: String): Single<GitRepoModel>
 }
