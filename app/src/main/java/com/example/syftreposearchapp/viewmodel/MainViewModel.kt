@@ -26,7 +26,7 @@ class MainViewModel constructor(private val repository: Repository) : ViewModel(
                 .subscribe({
                     lastFetchedTime = Date()
                     if (it == null) {
-                        errorMessage.value = "No Post Found"
+                        errorMessage.value = "No Repos Found"
                         loadingState.value = LoadingState.ERROR
                     } else {
                         repos.value = it.items
