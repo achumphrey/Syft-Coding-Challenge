@@ -5,5 +5,5 @@ import com.google.gson.annotations.SerializedName
 data class GitRepoModel(
 
 	@SerializedName("total_count") val total_count : Int,
-	@SerializedName("items") val items : List<Items>
+	@SerializedName("items") val items : List<Item>
 )

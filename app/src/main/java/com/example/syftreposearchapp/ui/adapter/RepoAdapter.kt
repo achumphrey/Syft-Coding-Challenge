@@ -4,12 +4,12 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.syftreposearchapp.R
-import com.example.syftreposearchapp.data.model.Items
+import com.example.syftreposearchapp.data.model.Item
 import com.example.syftreposearchapp.ui.viewholder.RepoViewHolder
 import com.example.syftreposearchapp.utils.inflate
 
 
-class RepoAdapter constructor(private val repos: MutableList<Items>) :
+class RepoAdapter constructor(private val repos: MutableList<Item>) :
     RecyclerView.Adapter<RepoViewHolder>() {
 
 
@@ -25,7 +25,7 @@ class RepoAdapter constructor(private val repos: MutableList<Items>) :
         holder.bindItem(repos[holder.adapterPosition])
     }
 
-    fun setItems(items: List<Items>) {
+    fun setItems(items: List<Item>) {
         repos.clear()
         repos.addAll(items)
         notifyDataSetChanged()

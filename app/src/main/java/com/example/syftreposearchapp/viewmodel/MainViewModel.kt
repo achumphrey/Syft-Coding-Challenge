@@ -3,7 +3,7 @@ package com.example.syftreposearchapp.viewmodel
 import android.app.Activity
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.syftreposearchapp.data.model.Items
+import com.example.syftreposearchapp.data.model.Item
 import com.example.syftreposearchapp.data.repository.Repository
 import com.example.syftreposearchapp.ui.activity.MainActivity
 import io.reactivex.disposables.CompositeDisposable
@@ -25,7 +25,7 @@ class MainViewModel constructor(private val repository: Repository) : ViewModel(
             )
                 .subscribe({
                     lastFetchedTime = Date()
-                    if (it == null) {
+                    if (it.items.isEmpty()) {
                         errorMessage.value = "No Repos Found"
                         loadingState.value = LoadingState.ERROR
                     } else {
@@ -49,7 +49,7 @@ class MainViewModel constructor(private val repository: Repository) : ViewModel(
 
     var lastFetchedTime: Date? = null
 
-    val repos: MutableLiveData<List<Items>> = MutableLiveData()
+    val repos: MutableLiveData<List<Item>> = MutableLiveData()
     val totalCount: MutableLiveData<Int> = MutableLiveData()
 
     val errorMessage: MutableLiveData<String> = MutableLiveData()
