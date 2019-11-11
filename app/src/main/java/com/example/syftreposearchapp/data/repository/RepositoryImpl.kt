@@ -7,8 +7,9 @@ import com.example.syftreposearchapp.utils.Constant
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
+import javax.inject.Inject
 
-open class RepositoryImpl(private val webServices: WebServices) : Repository {
+open class RepositoryImpl @Inject constructor(private val webServices: WebServices) : Repository {
     override fun fetchGitRepos(query: String): Single<GitRepoModel> {
         return webServices.fetchRepoWebService(query, Constant.sort, Constant.order)
             .subscribeOn(Schedulers.io())

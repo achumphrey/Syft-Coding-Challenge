@@ -5,6 +5,7 @@ Libraries and architectural patterns used:
     •   Viewmodel as architectural component for MVVM.
     •   LiveData for use with MVVM.
     •   JUnit for unit testing.
+    •	Dependency Injection using Dagger
 
 The task accomplished include:
     •	Display list of search results.
@@ -24,8 +25,7 @@ Extra tasks accomplished:
     •	Use of Architectural MVVM Pattern
 
 Further improvements:
-    •	Dependency Injection
-    •	infinite scrolling mechanism
+        •	infinite scrolling mechanism
 
 Api
 https://api.github.com/search/repositories?q=org:github+language:anyprograminglanguage&sort=stars&order=desc

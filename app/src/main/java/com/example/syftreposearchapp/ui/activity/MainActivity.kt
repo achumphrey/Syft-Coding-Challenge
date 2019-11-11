@@ -22,11 +22,17 @@ import androidx.core.app.ComponentActivity
 import androidx.core.app.ComponentActivity.ExtraData
 import androidx.core.content.ContextCompat.getSystemService
 import android.icu.lang.UCharacter.GraphemeClusterBreak.T
+import com.example.syftreposearchapp.di.DaggerNetworkComponent
+import com.example.syftreposearchapp.di.NetworkModule
+import com.example.syftreposearchapp.di.RepositoryModule
 import com.example.syftreposearchapp.utils.Stopwatch
+import javax.inject.Inject
 
 
 class MainActivity : AppCompatActivity() {
 
+    @Inject
+    lateinit var mainViewModelFactory: MainViewModelFactory
     private lateinit var viewModel: MainViewModel
     private lateinit var repoAdapter: RepoAdapter
     var elapsedTime: String = ""
@@ -45,9 +51,13 @@ class MainActivity : AppCompatActivity() {
         stopwatch.getElapsedTime()
         elapsedTime = stopwatch.elapsedTimeString()
 
-        viewModel =
-            ViewModelProviders.of(this, MainViewModelFactory(RepositoryImpl(WebServices.instance)))
-                .get(MainViewModel::class.java)
+        DaggerNetworkComponent.builder()
+            .networkModule(NetworkModule(this!!.application))
+            .repositoryModule(RepositoryModule())
+            .build()
+            .inject(this)
+
+        viewModel = ViewModelProviders.of(this, mainViewModelFactory).get(MainViewModel::class.java)
 
         viewModel.repos.observe(this, Observer {
             repoAdapter.setItems(it)
