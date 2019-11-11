@@ -1,7 +1,6 @@
 package com.example.syftreposearchapp.data.repository
 
 import com.example.syftreposearchapp.data.model.GitRepoModel
-import com.example.syftreposearchapp.data.model.GitRepos
 import com.example.syftreposearchapp.data.remote.WebServices
 import com.example.syftreposearchapp.utils.Constant
 import io.reactivex.Single

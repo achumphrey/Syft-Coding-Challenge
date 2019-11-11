@@ -11,11 +11,8 @@ class LanguageAdapter(private val languages: List<String>, var selectedLanguage:
     RecyclerView.Adapter<LanguageViewHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): LanguageViewHolder {
         return LanguageViewHolder(
-            LayoutInflater.from(parent.context).inflate(
-                R.layout.view_holder_language,
-                parent,
-                false
-            )
+            LayoutInflater.from(parent.context).inflate(R.layout.view_holder_language, parent,
+                false )
         )
     }
 

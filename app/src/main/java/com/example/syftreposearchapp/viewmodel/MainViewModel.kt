@@ -13,7 +13,7 @@ import java.util.*
 class MainViewModel constructor(private val repository: Repository) : ViewModel() {
     private val disposable = CompositeDisposable()
 
-    fun fetchRepos(query: String = "org:github", language: String = "") {
+    fun fetchRepos(query: String, language: String) {
         loadingState.value = LoadingState.LOADING
         disposable.add(
             repository.fetchGitRepos(
@@ -30,7 +30,7 @@ class MainViewModel constructor(private val repository: Repository) : ViewModel(
                         loadingState.value = LoadingState.ERROR
                     } else {
                         repos.value = it.items
-                        totalCount.value = it.total_count
+                        totalCount.value = it.totalCount
                         loadingState.value = LoadingState.SUCCESS
                     }
                 }, {
