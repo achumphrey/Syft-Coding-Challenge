@@ -15,24 +15,6 @@ import java.util.concurrent.TimeUnit
 
 
 interface WebServices {
-    companion object {
-        val instance: WebServices by lazy {
-            val logging = HttpLoggingInterceptor()
-            logging.level = HttpLoggingInterceptor.Level.BODY
-            val okHttpClient = OkHttpClient.Builder()
-                .readTimeout(1000, TimeUnit.SECONDS)
-                .writeTimeout(100, TimeUnit.SECONDS)
-                .addInterceptor(logging)
-                .build()
-            val retrofit = Retrofit.Builder()
-                .baseUrl(Constant.baseUrl)
-                .client(okHttpClient)
-                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-                .addConverterFactory(GsonConverterFactory.create())
-                .build()
-            retrofit.create(WebServices::class.java)
-        }
-    }
 
     @GET(Constant.endpointUrl)
     fun fetchRepoWebService(@Query("q") org : String?,

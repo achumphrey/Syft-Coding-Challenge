@@ -14,7 +14,7 @@ import com.example.syftreposearchapp.data.remote.WebServices
 import java.util.concurrent.TimeUnit
 
 @Module
-class NetworkModule (private val application: Application) {
+class NetworkModule () {
 
     @Provides
     @Singleton

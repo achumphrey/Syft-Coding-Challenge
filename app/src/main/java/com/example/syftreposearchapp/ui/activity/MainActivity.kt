@@ -22,7 +22,7 @@ import androidx.core.app.ComponentActivity
 import androidx.core.app.ComponentActivity.ExtraData
 import androidx.core.content.ContextCompat.getSystemService
 import android.icu.lang.UCharacter.GraphemeClusterBreak.T
-import com.example.syftreposearchapp.di.DaggerNetworkComponent
+import com.example.syftreposearchapp.di.DaggerSearchRepoComponent
 import com.example.syftreposearchapp.di.NetworkModule
 import com.example.syftreposearchapp.di.RepositoryModule
 import com.example.syftreposearchapp.utils.Stopwatch
@@ -51,8 +51,8 @@ class MainActivity : AppCompatActivity() {
         stopwatch.getElapsedTime()
         elapsedTime = stopwatch.elapsedTimeString()
 
-        DaggerNetworkComponent.builder()
-            .networkModule(NetworkModule(this!!.application))
+        DaggerSearchRepoComponent.builder()
+            .networkModule(NetworkModule())
             .repositoryModule(RepositoryModule())
             .build()
             .inject(this)
@@ -62,6 +62,7 @@ class MainActivity : AppCompatActivity() {
         viewModel.repos.observe(this, Observer {
             repoAdapter.setItems(it)
         })
+
         viewModel.totalCount.observe(this, Observer {
             tvDisplay.text = getString(R.string.total_repo_count, it, elapsedTime)
         })
