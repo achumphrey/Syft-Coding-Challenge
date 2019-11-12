@@ -1,6 +1,6 @@
 package com.example.syftreposearchapp.di
 
-import android.app.Application
+import com.example.syftreposearchapp.data.remote.WebServices
 import com.example.syftreposearchapp.utils.Constant
 import dagger.Module
 import dagger.Provides
@@ -9,12 +9,11 @@ import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
-import javax.inject.Singleton
-import com.example.syftreposearchapp.data.remote.WebServices
 import java.util.concurrent.TimeUnit
+import javax.inject.Singleton
 
 @Module
-class NetworkModule () {
+class NetworkModule {
 
     @Provides
     @Singleton
@@ -45,7 +44,7 @@ class NetworkModule () {
 
     @Provides
     @Singleton
-    fun provideWebservice(retrofit: Retrofit):WebServices{
+    fun provideWebservice(retrofit: Retrofit): WebServices {
         return retrofit.create(WebServices::class.java)
     }
 }

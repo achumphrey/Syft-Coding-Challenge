@@ -17,15 +17,13 @@ The task accomplished include:
         o	Number of Repositories found and the elapsed time.
     •	A facet list for filtering results.
         o	Filter by pragramming language.
+    •	Implemented infinite scrolling mechanism
 
 Programming Language used: Kotlin
 
 Extra tasks accomplished:
     •	Testing with JUnit
     •	Use of Architectural MVVM Pattern
-
-Further improvements:
-        •	infinite scrolling mechanism
-
+        
 Api
 https://api.github.com/search/repositories?q=org:github+language:anyprograminglanguage&sort=stars&order=desc

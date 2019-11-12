@@ -5,27 +5,22 @@ import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.view.View
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.syftreposearchapp.R
-import com.example.syftreposearchapp.data.remote.WebServices
-import com.example.syftreposearchapp.data.repository.RepositoryImpl
-import com.example.syftreposearchapp.ui.MyTextWatcher
-import com.example.syftreposearchapp.ui.adapter.RepoAdapter
-import com.example.syftreposearchapp.viewmodel.MainViewModel
-import com.example.syftreposearchapp.viewmodel.factory.MainViewModelFactory
-import kotlinx.android.synthetic.main.activity_main.*
-import androidx.core.app.ComponentActivity
-import androidx.core.app.ComponentActivity.ExtraData
-import androidx.core.content.ContextCompat.getSystemService
-import android.icu.lang.UCharacter.GraphemeClusterBreak.T
 import com.example.syftreposearchapp.di.DaggerSearchRepoComponent
 import com.example.syftreposearchapp.di.NetworkModule
 import com.example.syftreposearchapp.di.RepositoryModule
-import com.example.syftreposearchapp.utils.Stopwatch
+import com.example.syftreposearchapp.ui.MyTextWatcher
+import com.example.syftreposearchapp.ui.adapter.RepoAdapter
+import com.example.syftreposearchapp.utils.toTimeDuration
+import com.example.syftreposearchapp.viewmodel.MainViewModel
+import com.example.syftreposearchapp.viewmodel.factory.MainViewModelFactory
+import kotlinx.android.synthetic.main.activity_main.*
 import javax.inject.Inject
 
 
@@ -35,22 +30,40 @@ class MainActivity : AppCompatActivity() {
     lateinit var mainViewModelFactory: MainViewModelFactory
     private lateinit var viewModel: MainViewModel
     private lateinit var repoAdapter: RepoAdapter
-    var elapsedTime: String = ""
 
     var language: String = ""
 
     val RC_FILTER = 1001
 
+    var apiStartTime: Long = System.currentTimeMillis()
+
+    var isLoadingMoreData = false
+
+    var clearOldItems = true
+
+    var PER_PAGE_ITEM = 30
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        var stopwatch = Stopwatch()
         repoAdapter = RepoAdapter(mutableListOf())
-        rvRepos.layoutManager = LinearLayoutManager(this)
+        val layoutManager = LinearLayoutManager(this)
+        rvRepos.layoutManager = layoutManager
         rvRepos.adapter = repoAdapter
-        stopwatch.getElapsedTime()
-        elapsedTime = stopwatch.elapsedTimeString()
+        rvRepos.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                if (!isLoadingMoreData) {
+                    val visibleItemCount = layoutManager.childCount
+                    val totalItemsCount = layoutManager.itemCount
+                    val pastVisibleItems = layoutManager.findFirstVisibleItemPosition()
 
+                    if (pastVisibleItems + visibleItemCount >= totalItemsCount) {
+                        fetchMoreData(totalItemsCount)
+                    }
+                }
+
+            }
+        })
         DaggerSearchRepoComponent.builder()
             .networkModule(NetworkModule())
             .repositoryModule(RepositoryModule())
@@ -60,15 +73,25 @@ class MainActivity : AppCompatActivity() {
         viewModel = ViewModelProviders.of(this, mainViewModelFactory).get(MainViewModel::class.java)
 
         viewModel.repos.observe(this, Observer {
-            repoAdapter.setItems(it)
+            isLoadingMoreData = false
+            repoAdapter.updateItems(it, clearOldItems)
         })
 
         viewModel.totalCount.observe(this, Observer {
-            tvDisplay.text = getString(R.string.total_repo_count, it, elapsedTime)
+
+            val currentTime = System.currentTimeMillis()
+            val elapsedTime = currentTime - apiStartTime
+            tvDisplay.text = getString(R.string.total_repo_count, it, elapsedTime.toTimeDuration())
         })
 
         viewModel.errorMessage.observe(this, Observer {
+            isLoadingMoreData = false
             tvErrorMessage.text = it
+        })
+
+        viewModel.toastMessage.observe(this, Observer {
+            isLoadingMoreData = false
+            Toast.makeText(this,it,Toast.LENGTH_SHORT).show()
         })
 
         viewModel.loadingState.observe(this, Observer {
@@ -80,19 +103,17 @@ class MainActivity : AppCompatActivity() {
             }
         })
         if (viewModel.lastFetchedTime == null) {
-            viewModel.fetchRepos()
+            fetchRepos()
         }
         btnRetry.setOnClickListener {
-            viewModel.fetchRepos()
+            fetchRepos()
         }
 
         etSearch.addTextChangedListener(object : MyTextWatcher() {
             override fun afterTextChanged(s: Editable?) {
                 super.afterTextChanged(s)
-                var stopwatch = Stopwatch()
-                viewModel.fetchRepos(s.toString(), language)
-                stopwatch.getElapsedTime()
-                elapsedTime = stopwatch.elapsedTimeString()
+                clearOldItems = true
+                fetchRepos(s.toString(), language)
             }
         })
 
@@ -100,6 +121,22 @@ class MainActivity : AppCompatActivity() {
             val intent = Intent(this, FilterActivity::class.java)
             intent.putExtra("selected_language", language)
             startActivityForResult(intent, RC_FILTER)
+        }
+    }
+
+    private fun fetchMoreData(totalItemCount: Int) {
+        isLoadingMoreData = true
+        Toast.makeText(
+            this@MainActivity,
+            "Reached end of recyclerview with no of items: $totalItemCount",
+            Toast.LENGTH_SHORT
+        ).show()
+        clearOldItems = false
+
+        if (etSearch.text.toString() == "") {
+            fetchRepos("org:github", language,(totalItemCount / PER_PAGE_ITEM) + 1)
+        } else {
+            fetchRepos(etSearch.text.toString(), language,(totalItemCount / PER_PAGE_ITEM) + 1)
         }
     }
 
@@ -132,10 +169,11 @@ class MainActivity : AppCompatActivity() {
             RC_FILTER -> {
                 if (resultCode == Activity.RESULT_OK) {
                     language = data?.getStringExtra("selected_language") ?: ""
+                    clearOldItems = true
                     if (etSearch.text.toString() == "") {
-                        viewModel.fetchRepos(language = language)
+                        fetchRepos(language = language)
                     } else {
-                        viewModel.fetchRepos(etSearch.text.toString(), language)
+                        fetchRepos(etSearch.text.toString(), language)
                     }
                 }
             }
@@ -143,5 +181,10 @@ class MainActivity : AppCompatActivity() {
                 super.onActivityResult(requestCode, resultCode, data)
             }
         }
+    }
+
+    fun fetchRepos(query: String = "org:github", language: String = "", pageNo: Int = 1) {
+        apiStartTime = System.currentTimeMillis()
+        viewModel.fetchRepos(query, language, pageNo ,clearOldItems)
     }
 }

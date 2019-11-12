@@ -29,9 +29,9 @@ class MainViewModelTest {
 
     @MockK
     lateinit var repository: RepositoryImpl
-    lateinit var mainViewModel: MainViewModel
+    private lateinit var mainViewModel: MainViewModel
 
-    private var totalCount : Int = 123
+    private var totalCount : Int = 1001
     private var items = mutableListOf<Item>()
 
     @Before
@@ -46,9 +46,9 @@ class MainViewModelTest {
         var repos = GitRepoModel(totalCount, items)
 
         val expectedRepos = items
-        every {repository.fetchGitRepos("")} returns (Single.just(repos))
+        every {repository.fetchGitRepos(any())} returns (Single.just(repos))
 
-        mainViewModel.fetchRepos("")
+        mainViewModel.fetchRepos("","")
 
         assertEquals(expectedRepos, mainViewModel.repos.value)
         assertEquals(MainViewModel.LoadingState.SUCCESS, mainViewModel.loadingState.value)
@@ -59,9 +59,9 @@ class MainViewModelTest {
     fun fetchRepos_without_success_Nothing_Returned() {
         var repos = GitRepoModel(totalCount, emptyList())
 
-        every {repository.fetchGitRepos("")} returns Single.just(repos)
+        every {repository.fetchGitRepos(any())} returns Single.just(repos)
 
-        mainViewModel.fetchRepos("")
+        mainViewModel.fetchRepos("","")
 
         assertEquals(null, mainViewModel.repos.value)
         assertEquals(MainViewModel.LoadingState.ERROR, mainViewModel.loadingState.value)
@@ -70,9 +70,9 @@ class MainViewModelTest {
 
     @Test
     fun fetchRepos_with_NetworkError() {
-        every {repository.fetchGitRepos("")} returns (Single.error(UnknownHostException("Something Wrong")))
+        every {repository.fetchGitRepos(any())} returns (Single.error(UnknownHostException("Something Wrong")))
 
-        mainViewModel.fetchRepos("")
+        mainViewModel.fetchRepos("","")
 
         assertEquals(null, mainViewModel.repos.value)
         assertEquals(MainViewModel.LoadingState.ERROR, mainViewModel.loadingState.value)
@@ -83,7 +83,7 @@ class MainViewModelTest {
     fun fetchRepos_with_otherError() {
         every {repository.fetchGitRepos("")} returns (Single.error(RuntimeException("ABC")))
 
-        mainViewModel.fetchRepos("")
+        mainViewModel.fetchRepos("","")
 
         assertEquals(null, mainViewModel.repos.value)
         assertEquals(MainViewModel.LoadingState.ERROR, mainViewModel.loadingState.value)

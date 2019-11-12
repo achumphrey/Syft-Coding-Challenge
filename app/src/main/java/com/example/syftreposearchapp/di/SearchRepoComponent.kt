@@ -5,8 +5,7 @@ import dagger.Component
 import javax.inject.Singleton
 
 @Singleton
-@Component(modules = arrayOf(NetworkModule::class,
-    RepositoryModule::class))
+@Component(modules = [NetworkModule::class, RepositoryModule::class])
 interface SearchRepoComponent {
 
     fun inject(mainActivity: MainActivity)

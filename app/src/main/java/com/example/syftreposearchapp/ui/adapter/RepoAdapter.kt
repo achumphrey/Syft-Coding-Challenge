@@ -25,9 +25,15 @@ class RepoAdapter constructor(private val repos: MutableList<Item>) :
         holder.bindItem(repos[holder.adapterPosition])
     }
 
-    fun setItems(items: List<Item>) {
-        repos.clear()
+    fun updateItems(items: List<Item>, clearOldItems: Boolean = true) {
+        if (clearOldItems) {
+            repos.clear()
+        }
         repos.addAll(items)
-        notifyDataSetChanged()
+        if (clearOldItems) {
+            notifyDataSetChanged()
+        } else {
+            notifyItemRangeInserted(repos.count() - items.count(), items.count())
+        }
     }
 }
